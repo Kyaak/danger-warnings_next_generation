@@ -1,0 +1,36 @@
+{
+    "_class": "io.jenkins.plugins.analysis.core.restapi.AnalysisResultApi",
+    "errorMessages": [],
+    "fixedSize": 4,
+    "infoMessages": [
+        "Parsing console log (workspace: '/var/lib/jenkins/workspace/projectname/b2b-app-android-analyze/repository')",
+        "Post processing issues on 'Master' with encoding 'UTF-8'",
+        "Resolving absolute file names for all issues",
+        "-> 0 resolved, 0 unresolved, 4 already resolved",
+        "Copying affected files to Jenkins' build folder /var/lib/jenkins/jobs/projectname/jobs/b2b-app-android-analyze/builds/10",
+        "-> 4 copied, 0 not in workspace, 0 not-found, 0 with I/O error",
+        "Resolving module names from module definitions (build.xml, pom.xml, or Manifest.mf files)",
+        "-> resolved module names for 8 issues",
+        "Resolving package names (or namespaces) by parsing the affected files",
+        "-> resolved package names of 4 affected files",
+        "No filter has been set, publishing all 8 issues",
+        "Creating fingerprints for all affected code blocks to track issues over different builds",
+        "-> created fingerprints for 8 issues",
+        "Skipping blaming as requested in the job configuration",
+        "Using reference build 'projectname/b2b-app-android-analyze #9' to compute new, fixed, and outstanding issues",
+        "Issues delta (vs. reference build): outstanding: 8, new: 0, fixed: 4",
+        "No quality gates have been set - skipping",
+        "Health report is disabled - skipping"
+    ],
+    "newSize": 0,
+    "noIssuesSinceBuild": -1,
+    "owner": {
+        "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+        "number": 10,
+        "url": "https://master-build.letsdev.intern/job/projectname/job/tests/job/b2b-app-android-analyze/10/"
+    },
+    "qualityGateStatus": "INACTIVE",
+    "referenceBuild": null,
+    "successfulSinceBuild": -1,
+    "totalSize": 8
+}
