@@ -1,4 +1,4 @@
-Copyright (c) 2019 Martin Schwamberger <martin.schwamb@gmail.com>
+Copyright (c) 2019 Martin Schwamberger <kyaak.dev@gmail.com>
 
 MIT License
 
