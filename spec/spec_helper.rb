@@ -9,6 +9,7 @@ require "bundler/setup"
 
 require "rspec"
 require "danger"
+require "mocha"
 
 if `git remote -v` == ""
   puts "You cannot run tests without setting a local git remote on this repo"
@@ -21,6 +22,7 @@ RSpec.configure do |config|
   config.filter_gems_from_backtrace "bundler"
   config.color = true
   config.tty = true
+  config.mock_with :mocha
 end
 
 require "danger_plugin"

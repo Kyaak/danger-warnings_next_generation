@@ -19,16 +19,50 @@ module Danger
   # @tags monday, weekends, time, rattata
   #
   class DangerWarningsNextGeneration < Plugin
-    # An attribute that you can read/write from your Dangerfile
-    #
-    # @return   [Array<String>]
-    attr_accessor :my_attribute
+    require "json"
+    require "open-uri"
 
-    # A method that you can call from your Dangerfile
-    # @return   [Array<String>]
-    #
-    def warn_on_mondays
-      warn "Trying to merge code on a Monday" if Date.today.wday == 1
+    def aggregation_report
+      json = aggregation_result
+      tools = json["tools"]
+      tools.each do |tool|
+        name = tool["name"]
+        threshold = tool["threshold"]
+
+        message = "#{name} has #{threshold} #{issue_by_count(threshold)}."
+        if zero_issues?(threshold)
+          message += " Awesome."
+        end
+
+        message(message)
+      end
+    end
+
+    private
+
+    def issue_by_count(threshold)
+      result = "issue"
+      unless single_issue?(threshold)
+        result += "s"
+      end
+      result
+    end
+
+    def single_issue?(threshold)
+      threshold.to_i == 1
+    end
+
+    def zero_issues?(threshold)
+      threshold.to_i.zero?
+    end
+
+    def aggregation_result
+      content = open("#{build_url}/warnings-ng/api/json").read
+      JSON.parse(content)
+    end
+
+    def build_url
+      ENV["BUILD_URL"]
     end
   end
 end

@@ -8,40 +8,63 @@ module Danger
       expect(Danger::DangerWarningsNextGeneration.new(nil)).to be_a Danger::Plugin
     end
 
-    #
-    # You should test your custom attributes and methods here
-    #
     describe "with Dangerfile" do
       before do
         @dangerfile = testing_dangerfile
         @my_plugin = @dangerfile.warnings_next_generation
-
-        # mock the PR data
-        # you can then use this, eg. github.pr_author, later in the spec
-        json = File.read(File.dirname(__FILE__) + "/support/fixtures/github_pr.json") # example json: `curl https://api.github.com/repos/danger/danger-plugin-template/pulls/18 > github_pr.json`
-        allow(@my_plugin.github).to receive(:pr_json).and_return(json)
       end
 
-      # Some examples for writing tests
-      # You should replace these with your own.
+      describe "aggregation_result" do
+        it "add info for entries" do
+          aggregation_return("/assets/aggregation.json")
+          @my_plugin.aggregation_report
 
-      it "Warns on a monday" do
-        monday_date = Date.parse("2016-07-11")
-        allow(Date).to receive(:today).and_return monday_date
+          messages = @dangerfile.status_report[:messages]
+          expect(messages.length).to be(8)
+        end
 
-        @my_plugin.warn_on_mondays
+        it "uses 'issues' on 0 items" do
+          aggregation_return("/assets/aggregation_issues_zero.json")
+          @my_plugin.aggregation_report
 
-        expect(@dangerfile.status_report[:warnings]).to eq(["Trying to merge code on a Monday"])
-      end
+          messages = @dangerfile.status_report[:messages]
+          expect(messages.length).to be(1)
+          expect(messages.first).to include("0 issues.")
+        end
 
-      it "Does nothing on a tuesday" do
-        monday_date = Date.parse("2016-07-12")
-        allow(Date).to receive(:today).and_return monday_date
+        it "uses 'issues' on multiple items" do
+          aggregation_return("/assets/aggregation_issues_multiple.json")
+          @my_plugin.aggregation_report
 
-        @my_plugin.warn_on_mondays
+          messages = @dangerfile.status_report[:messages]
+          expect(messages.length).to be(1)
+          expect(messages.first).to include("123 issues.")
+        end
 
-        expect(@dangerfile.status_report[:warnings]).to eq([])
+        it "uses 'issue' on one item" do
+          aggregation_return("/assets/aggregation_issues_one.json")
+          @my_plugin.aggregation_report
+
+          messages = @dangerfile.status_report[:messages]
+          expect(messages.length).to be(1)
+          expect(messages.first).to include("1 issue.")
+        end
+
+        it "appends 'Awesome' on zero issues" do
+          aggregation_return("/assets/aggregation_issues_zero.json")
+          @my_plugin.aggregation_report
+
+          messages = @dangerfile.status_report[:messages]
+          expect(messages.length).to be(1)
+          expect(messages.first).to include("Awesome.")
+        end
       end
     end
   end
+end
+
+def aggregation_return(file)
+  content = File.read(File.dirname(__FILE__) + file)
+  json = JSON.parse(content)
+  @my_plugin.stubs(:aggregation_result).returns(json)
 end
