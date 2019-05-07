@@ -18,6 +18,8 @@ Gem::Specification.new do |spec|
   spec.test_files = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
+  spec.required_ruby_version = '>=2.2.0'
+
   spec.add_runtime_dependency 'danger-plugin-api', '~> 1.0'
 
   # General ruby development
@@ -26,6 +28,9 @@ Gem::Specification.new do |spec|
 
   # Testing support
   spec.add_development_dependency 'rspec', '~> 3.8'
+  spec.add_development_dependency 'mocha', '~> 1.8'
+  spec.add_development_dependency 'simplecov', '~> 0.16'
+  spec.add_development_dependency 'simplecov-console', '~> 0.4'
 
   # Linting code and docs
   spec.add_development_dependency "rubocop", '~> 0.68'
