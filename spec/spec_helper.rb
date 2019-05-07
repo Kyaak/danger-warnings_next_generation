@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 require "pathname"
-ROOT = Pathname.new(File.expand_path("../../", __FILE__))
+ROOT = Pathname.new(File.expand_path("..", __dir__))
 $:.unshift((ROOT + "lib").to_s)
 $:.unshift((ROOT + "spec").to_s)
 
@@ -9,7 +11,7 @@ require "pry"
 require "rspec"
 require "danger"
 
-if `git remote -v` == ''
+if `git remote -v` == ""
   puts "You cannot run tests without setting a local git remote on this repo"
   puts "It's a weird side-effect of Danger's internals."
   exit(0)
@@ -54,7 +56,7 @@ def testing_env
     "TRAVIS_PULL_REQUEST" => "800",
     "TRAVIS_REPO_SLUG" => "artsy/eigen",
     "TRAVIS_COMMIT_RANGE" => "759adcbd0d8f...13c4dc8bb61d",
-    "DANGER_GITHUB_API_TOKEN" => "123sbdq54erfsd3422gdfio"
+    "DANGER_GITHUB_API_TOKEN" => "123sbdq54erfsd3422gdfio",
   }
 end
 
