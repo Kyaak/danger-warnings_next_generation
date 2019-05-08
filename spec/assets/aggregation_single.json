@@ -1,0 +1,11 @@
+{
+  "_class": "io.jenkins.plugins.analysis.core.restapi.AggregationApi",
+  "tools": [
+    {
+      "id": "java",
+      "latestUrl": "http://localhost:8080/view/White%20Mountains/job/New%20-%20Pipeline%20-%20Simple%20Model/26/java",
+      "name": "Java Warnings",
+      "threshold": 1
+    }
+  ]
+}

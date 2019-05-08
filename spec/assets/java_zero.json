@@ -1,7 +1,7 @@
 {
     "_class": "io.jenkins.plugins.analysis.core.restapi.AnalysisResultApi",
     "errorMessages": [],
-    "fixedSize": 1,
+    "fixedSize": 0,
     "infoMessages": [
         "Parsing console log (workspace: '/var/lib/jenkins/workspace/projectname/b2b-app-android-analyze/repository')",
         "Post processing issues on 'Master' with encoding 'UTF-8'",
@@ -22,7 +22,7 @@
         "No quality gates have been set - skipping",
         "Health report is disabled - skipping"
     ],
-    "newSize": 2,
+    "newSize": 0,
     "noIssuesSinceBuild": -1,
     "owner": {
         "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
@@ -32,5 +32,5 @@
     "qualityGateStatus": "INACTIVE",
     "referenceBuild": null,
     "successfulSinceBuild": -1,
-    "totalSize": 3
+    "totalSize": 0
 }

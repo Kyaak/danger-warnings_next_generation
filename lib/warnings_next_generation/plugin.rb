@@ -15,54 +15,105 @@ module Danger
   #
   #          my_plugin.warn_on_mondays
   #
-  # @see  Martin Schwamberger/danger-warnings_next_generation
+  # @see  Kyaak/danger-warnings_next_generation
   # @tags monday, weekends, time, rattata
   #
   class DangerWarningsNextGeneration < Plugin
     require "json"
     require "open-uri"
+    require_relative "markdown_table"
 
-    def aggregation_report
-      json = aggregation_result
-      tools = json["tools"]
+    EMOJI_BEETLE = ":beetle:"
+    EMOJI_X = ":x:"
+    EMOJI_CHECK_MARK = ":white_check_mark:"
+    EMOJI_STAR = ":star:"
+    TABLE_HEADER_TOOL = "**Tool**"
+    TABLE_HEADER_FILE = "**File**"
+    TABLE_HEADER_SEVERITY = "**Severity**"
+    TABLE_HEADER_DESCRIPTION = "**Description**"
+    WNG_OVERVIEW_TITLE = "### Warnings Next Generation Overview"
+
+    def report
+      overview_report
+      tools_report
+    end
+
+    def overview_report
+      overview_table = WarningsNextGeneration::MarkdownTable.new
+      overview_table.table_header(TABLE_HEADER_TOOL, EMOJI_BEETLE, EMOJI_X, EMOJI_CHECK_MARK)
+
+      tools = tool_entries
       tools.each do |tool|
         name = tool["name"]
-        threshold = tool["threshold"]
+        url = tool["latestUrl"]
 
-        message = "#{name} has #{threshold} #{issue_by_count(threshold)}."
-        if zero_issues?(threshold)
-          message += " Awesome."
-        end
+        overview = overview_result(url)
+        overview_entry(overview_table, name, overview)
+      end
 
-        message(message)
+      markdown("#{WNG_OVERVIEW_TITLE}\n\n#{overview_table.to_markdown}")
+    end
+
+    def tools_report
+      tools = tool_entries
+      tools.each do |tool|
+        name = tool["name"]
+        url = tool["latestUrl"]
+
+        tool_table(name, url)
       end
     end
 
     private
 
-    def issue_by_count(threshold)
-      result = "issue"
-      unless single_issue?(threshold)
-        result += "s"
+    def tool_table(name, url)
+      details = details_result(url)
+      issues = details["issues"]
+
+      table = WarningsNextGeneration::MarkdownTable.new
+      table.table_header(TABLE_HEADER_SEVERITY, TABLE_HEADER_FILE, TABLE_HEADER_DESCRIPTION)
+      issues.each do |issue|
+        severity = issue["severity"]
+        file = File.basename(issue["fileName"])
+        line = issue["lineStart"]
+        message = issue["message"]
+        category = issue["category"]
+        table.line(severity, "#{file}:#{line}", "[#{category}] #{message}")
       end
-      result
+      content = +"### #{name}\n\n"
+      content << table.to_markdown
+      markdown(content)
     end
 
-    def single_issue?(threshold)
-      threshold.to_i == 1
+    def tool_entries
+      json = aggregation_result
+      json["tools"]
     end
 
-    def zero_issues?(threshold)
-      threshold.to_i.zero?
+    def overview_entry(table, name, overview)
+      fixed = overview["fixedSize"]
+      new = overview["newSize"]
+      total = overview["totalSize"]
+      table.line(name, num_star(total), num_star(new), num_star(fixed))
     end
 
-    def aggregation_result
-      content = open("#{build_url}/warnings-ng/api/json").read
+    def num_star(number)
+      number.to_i.zero? ? EMOJI_STAR : number
+    end
+
+    def details_result(url)
+      content = OpenURI.open("#{url}/all/api/json").read
       JSON.parse(content)
     end
 
-    def build_url
-      ENV["BUILD_URL"]
+    def overview_result(url)
+      content = OpenURI.open("#{url}/api/json").read
+      JSON.parse(content)
+    end
+
+    def aggregation_result
+      content = OpenURI.open("#{ENV['BUILD_URL']}/warnings-ng/api/json").read
+      JSON.parse(content)
     end
   end
 end
