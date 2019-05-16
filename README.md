@@ -1,8 +1,8 @@
-<h1 align="center">danger-warnings-next-generation</h1>
+<h1 align="center">danger-warnings_next_generation</h1>
 
 <div align="center">
   <!-- Sonar Cloud -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
     <img src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg"
       alt="Sonar Cloud" />
   </a>
@@ -12,65 +12,65 @@
 
 <div align="center">
   <!-- Version -->
-  <a href="https://badge.fury.io/rb/danger-warnings-next-generation">
+  <a href="https://badge.fury.io/rb/danger-warnings_next_generation">
     <img src="https://badge.fury.io/rb/danger-warnings.svg" alt="Version" />
   </a>
   <!-- Downloads -->
-  <a href="https://badge.fury.io/rb/danger-warnings-next-generation">
+  <a href="https://badge.fury.io/rb/danger-warnings_next_generation">
     <img src="https://img.shields.io/gem/dt/danger-warnings.svg" alt="Downloads" />
   </a>
 </div>
 
 <div align="center">
   <!-- Build Status -->
-  <a href="https://travis-ci.org/Kyaak/danger-warnings-next-generation">
+  <a href="https://travis-ci.org/Kyaak/danger-warnings_next_generation">
     <img src="https://img.shields.io/travis/choojs/choo/develop.svg"
       alt="Build Status" />
   </a>
   <!-- Coverage -->
-    <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-      <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=coverage"
+    <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+      <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=coverage"
         alt="Coverage" />
     </a>
 </div>
 
 <div align="center">
   <!-- Reliability Rating -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=reliability_rating"
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=reliability_rating"
       alt="Reliability Rating" />
   </a>
   <!-- Security Rating -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=security_rating"
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=security_rating"
       alt="Security Rating" />
   </a>
   <!-- Maintainabiltiy -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=sqale_rating"
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=sqale_rating"
       alt="Maintainabiltiy" />
   </a>
 </div>
 
 <div align="center">
   <!-- Code Smells -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=code_smells"
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=code_smells"
       alt="Code Smells" />
   </a>
   <!-- Bugs -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=bugs"
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=bugs"
       alt="Bugs" />
   </a>
   <!-- Vulnerabilities -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=vulnerabilities"
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=vulnerabilities"
       alt="Vulnerabilities" />
   </a>
   <!-- Technical Dept -->
-  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings-next-generation">
-    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings-next-generation&metric=sqale_index"
+  <a href="https://sonarcloud.io/dashboard?id=Kyaak_danger-warnings_next_generation">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=Kyaak_danger-warnings_next_generation&metric=sqale_index"
       alt="Technical Dept" />
   </a>
 </div>
@@ -121,13 +121,13 @@ getColor(Int): Int' is deprecated. Deprecated in Java
 
 <blockquote>Show overview and tool reports for all found analytic tools.
 <pre>
-warnings-next-generation.report
+warnings_next_generation.report
 </pre>
 </blockquote>   
 
 <blockquote>Show overview and tool reports for selected analytic tools
 <pre>
-warnings-next-generation.report(
+warnings_next_generation.report(
     # must match tool id
     include: ['android-lint', 'java', 'pmd']
 )
@@ -136,7 +136,7 @@ warnings-next-generation.report(
 
 <blockquote>Show overview and tool reports with inline comments
 <pre>
-warnings-next-generation.report(
+warnings_next_generation.report(
     inline: true,
     # inline comments require a baseline
     # file: "/var/lib/jenkins/workspace/projectname/repository/app/src/main/java/com/projectname/b2bshop/fragment/gallery/ImageGalleryFragment.kt
@@ -148,7 +148,7 @@ warnings-next-generation.report(
 
 <blockquote>Only overview report
 <pre>
-warnings-next-generation.overview_report(
+warnings_next_generation.overview_report(
     include: ['java']
 )
 </pre>
@@ -156,7 +156,7 @@ warnings-next-generation.overview_report(
 
 <blockquote>Only tools report
 <pre>
-warnings-next-generation.tools_report(
+warnings_next_generation.tools_report(
     include: ['java', 'pmd']
     inline: true,
     baseline: '/path/to/workspace/repository/root'
