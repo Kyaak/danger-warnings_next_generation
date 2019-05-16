@@ -11,7 +11,18 @@ module WarningsNextGeneration
       @lines = []
     end
 
-    def table_header(*args)
+    def overview_header(*args)
+      args.each_with_index do |item, index|
+        @header << "#{item}#{COLUMN_SEPARATOR}"
+        if index.zero?
+          @header_separator << ":#{HEADER_SEPARATOR}#{COLUMN_SEPARATOR}"
+        else
+          @header_separator << ":#{HEADER_SEPARATOR}:#{COLUMN_SEPARATOR}"
+        end
+      end
+    end
+
+    def detail_header(*args)
       args.each do |item|
         @header << "#{item}#{COLUMN_SEPARATOR}"
         @header_separator << "#{HEADER_SEPARATOR}#{COLUMN_SEPARATOR}"

@@ -33,45 +33,72 @@ module Danger
     TABLE_HEADER_DESCRIPTION = "**Description**"
     WNG_OVERVIEW_TITLE = "### Warnings Next Generation Overview"
 
-    def report
-      overview_report
-      tools_report
+    def report(*args)
+      options = args.first
+      overview_report(options)
+      tools_report(options)
     end
 
-    def overview_report
+    def overview_report(*args)
       overview_table = WarningsNextGeneration::MarkdownTable.new
-      overview_table.table_header(TABLE_HEADER_TOOL, EMOJI_BEETLE, EMOJI_X, EMOJI_CHECK_MARK)
+      overview_table.overview_header(TABLE_HEADER_TOOL, EMOJI_BEETLE, EMOJI_X, EMOJI_CHECK_MARK)
+      options = args.first
+      tool_ids = include(options)
+      entry_count = 0
 
       tools = tool_entries
       tools.each do |tool|
         name = tool["name"]
         url = tool["latestUrl"]
+        id = tool["id"]
 
+        if use_include_option?(options)
+          next unless tool_ids.include?(id)
+        end
         overview = overview_result(url)
+        entry_count += 1
         overview_entry(overview_table, name, overview)
       end
 
+      if use_include_option?(options)
+        return if entry_count.zero?
+      end
       markdown("#{WNG_OVERVIEW_TITLE}\n\n#{overview_table.to_markdown}")
     end
 
-    def tools_report
+    def tools_report(*args)
+      options = args.first
+      tool_ids = include(options)
+
       tools = tool_entries
       tools.each do |tool|
         name = tool["name"]
         url = tool["latestUrl"]
+        id = tool["id"]
 
+        if use_include_option?(options)
+          next unless tool_ids.include?(id)
+        end
         tool_table(name, url)
       end
     end
 
     private
 
+    def include(options)
+      options && !options[:include].nil? ? options[:include] : []
+    end
+
+    def use_include_option?(options)
+      !options.nil? && !options[:include].nil?
+    end
+
     def tool_table(name, url)
       details = details_result(url)
       issues = details["issues"]
 
       table = WarningsNextGeneration::MarkdownTable.new
-      table.table_header(TABLE_HEADER_SEVERITY, TABLE_HEADER_FILE, TABLE_HEADER_DESCRIPTION)
+      table.detail_header(TABLE_HEADER_SEVERITY, TABLE_HEADER_FILE, TABLE_HEADER_DESCRIPTION)
       issues.each do |issue|
         severity = issue["severity"]
         file = File.basename(issue["fileName"])
@@ -94,7 +121,7 @@ module Danger
       fixed = overview["fixedSize"]
       new = overview["newSize"]
       total = overview["totalSize"]
-      table.line(name, num_star(total), num_star(new), num_star(fixed))
+      table.line(name, num_star(total), new, fixed)
     end
 
     def num_star(number)

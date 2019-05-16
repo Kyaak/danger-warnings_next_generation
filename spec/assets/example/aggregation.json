@@ -1,0 +1,23 @@
+{
+  "_class": "io.jenkins.plugins.analysis.core.restapi.AggregationApi",
+  "tools": [
+    {
+      "id": "android-lint",
+      "latestUrl": "https://example-jenkins.de/job/danger/10/android-lint",
+      "name": "Android Lint Warnings",
+      "size": 4
+    },
+    {
+      "id": "pmd",
+      "latestUrl": "https://example-jenkins.de/job/danger/10/pmd",
+      "name": "PMD Warnings",
+      "size": 0
+    },
+    {
+      "id": "detekt",
+      "latestUrl": "https://example-jenkins.de/job/danger/10/detekt",
+      "name": "Detekt Warnings",
+      "size": 10
+    }
+  ]
+}
