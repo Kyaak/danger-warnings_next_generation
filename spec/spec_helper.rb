@@ -11,6 +11,10 @@ require "rspec"
 require "danger"
 require "mocha"
 
+require "simplecov"
+
+SimpleCov.start
+
 if `git remote -v` == ""
   puts "You cannot run tests without setting a local git remote on this repo"
   puts "It's a weird side-effect of Danger's internals."
