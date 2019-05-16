@@ -1,10 +1,29 @@
 language: ruby
 
+cache:
+  directories:
+    - bundle
+
 rvm:
   - 2.3
   - 2.4
   - 2.5
   - 2.6
 
+addons:
+  sonarcloud:
+    organization: "kyaak-github"
+    secure: "bTueBU2H+XjFIkzn6g0RHRQb4sPrQ5IaI9VxcHDejUgAlFdpvKIuafACQwEo2EUe1VKTH3QNw3ekFEF1HHuQmoVwhaZIRj3NX+2wK25oVsKl7+v9QNalDTzbaoMwidRoUIcAw7xbcn5HBda+6FkwehdDPhP+/Hcx7wTIi5ezKNra+LhWhlOphcWsyR05K8Yl7/PASQd04O7VYmzH411jHWUFUfMEuR8fCcVg4QvnzmtmX0i4SllAioYDslVVZe/xxC32yk2F2bwDtcRHnyb8rpa2rKK1sWi+6AR/mQxTvmVWGCtn3BvoovrRKPmZAbLZ7irSJLAcO4F92bbwh/Ohr13/HCfvMaoZxexKuWM5xwfh/bE9cpSrvs+5kxT6ANka+4jEYxFEAUDiGhl8eikXbcll0u8xNgpq6yrSYLxzpJv5Y7H1QssbRlvJvP8fTs4kDdt70G936mVjqnEoLwUaXh7mzKGXtpBeHNg1K0TgoOAKBju0Maf2eJLBACcVJZcDEMogcHnosOKhkhs7OOhHEPMC00KsKJHk9Nq57dsqL0ohjEi+jNct/2IkqUYb2elk44oOQaxS7r7oHkFZmgrvQc7FbCvA4qYMQfuqzeVPXnsyAmU0vZ41/hgDU++vSmSzRwQOqr8x6qmPQUqzR/GZjTTVHpZxZqYy50qt71d2PT0="
+
 script:
   - bundle exec rake spec
+  - sonar-scanner
+
+deploy:
+  provider: rubygems
+  api_key:
+    secure: "hGaoShdpKLUwc3HS3p6opjf6Z+/Ez2OLtco2RoavhyKavnPS1uUJ1XdfVp/2ZgW5LDPPpbq7EDRcnKK1dd/4WpDP/UMM2xxEKIhUhQrQPf9LvyTOUXyRird0aSmPYMmGReCIr5Bgg+BxL3AuagMxCUNWKADMLTEGd/7sbyTzf1Pv+XKNEnek+BdmmrQp/w/dOubn/vsjBGxqU3+barGxl/0ImGRlkDplv5VIqoZtf3l3LRNCQ4K4VX7hRveHv3hK6NpsKoqrcK9Uzj3GyGxrEnfnNiSlPa2oeohctJiDYk8fgcvTcckdVfMra+YNk2gpS/YeEC9dEbSsfPykeuZa/Ss+8O64bPg435Zj51AEzw9YgyezLHuN6KRtm8Hb73nL+8+1JW58OEzMCypG6KVcHHSf9Tir3hh0mgxCCrsHpblBNpGyiEKOFLdnsHuM0RotP4gC0R2OB7QRb4IVRhcvS5QDRi1WNwz4dzYe6WpWT4CGSsm/RpqfljtlLnDjHGCB5O3ybY4AYh3giueoDEKsr94q7y1Z0dXTbl+3UZi20vVBcakl4NFlbuoq4/zRpJYDGU2/qXV0molb030DIL+jQtfJkt08MveZJ/9pn4MbPQarDbNvpKyq4nuaqfYrS1NIAtkIYwROnl3GXxnocudDVuZCohNNaxpridnFgPSlD6k="
+  gem: danger-warnings-next-generation
+  on:
+    branch: master
+    rvm: 2.6
