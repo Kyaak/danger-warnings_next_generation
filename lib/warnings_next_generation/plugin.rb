@@ -35,12 +35,26 @@ module Danger
     TABLE_HEADER_DESCRIPTION = "**Description**"
     WNG_OVERVIEW_TITLE = "### Warnings Next Generation Overview"
 
+    def initialize(dangerfile)
+      @target_files = []
+      super(dangerfile)
+    end
+
+    # Create all reports.
+    # Passes arguments to each report.
+    #
+    # @param args Configuration settings
+    # @return [void]
     def report(*args)
       options = args.first
       overview_report(options)
       tools_report(options)
     end
 
+    # Create an overview report.
+    #
+    # @param args Configuration settings
+    # @return [void]
     def overview_report(*args)
       overview_table = WarningsNextGeneration::MarkdownTable.new
       overview_table.overview_header(TABLE_HEADER_TOOL, EMOJI_BEETLE, EMOJI_X, EMOJI_CHECK_MARK)
@@ -68,6 +82,10 @@ module Danger
       markdown("#{WNG_OVERVIEW_TITLE}\n\n#{overview_table.to_markdown}")
     end
 
+    # Create tools reports.
+    #
+    # @param args Configuration settings
+    # @return [void]
     def tools_report(*args)
       options = args.first
       tool_ids = include(options)
@@ -147,6 +165,8 @@ module Danger
         message = issue["message"]
         category = issue["category"]
 
+        next unless file_in_changeset?(file)
+
         inline_message = "#{severity}\n[#{category}]\n#{message}"
         message(inline_message, file: file, line: line)
       end
@@ -162,6 +182,14 @@ module Danger
       new = overview["newSize"]
       total = overview["totalSize"]
       table.line(name, num_star(total), new, fixed)
+    end
+
+    def file_in_changeset?(file)
+      target_files.include?(file)
+    end
+
+    def target_files
+      @target_files ||= git.modified_files + git.added_files
     end
 
     def num_star(number)

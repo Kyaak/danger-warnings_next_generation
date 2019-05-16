@@ -197,6 +197,7 @@ module Danger
         it "creates inline comments" do
           aggregation_return("/assets/aggregation_single.json")
           details_return("/assets/java_all.json")
+          target_files_return_java_all
           @my_plugin.tools_report(inline: true, baseline: JAVA_ALL_BASELINE)
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -209,11 +210,12 @@ module Danger
         it "inline comments remove baseline" do
           aggregation_return("/assets/aggregation_single.json")
           details_return("/assets/java_all.json")
+          target_files_return_java_all
           @my_plugin.tools_report(inline: true, baseline: JAVA_ALL_BASELINE)
 
           message = @dangerfile.violation_report[:messages].first
           expect(message.file).not_to include(JAVA_ALL_BASELINE)
-          expect(message.file.chars.first).not_to eql('/')
+          expect(message.file.chars.first).not_to eql("/")
         end
       end
     end
@@ -236,4 +238,11 @@ def details_return(file)
   content = File.read(File.dirname(__FILE__) + file)
   json = JSON.parse(content)
   @my_plugin.stubs(:details_result).returns(json)
+end
+
+def target_files_return_java_all
+  @my_plugin.stubs(:target_files).returns(["app/src/main/java/com/projectname/b2bshop/fragment/gallery/ImageGalleryFragment.kt",
+                                           "app/src/main/java/com/projectname/b2bshop/webservice/requestqueue/RequestQueue.java",
+                                           "app/src/main/java/com/projectname/b2bshop/webservice/requestqueue/RequestQueueImpl.java",
+                                           "app/src/main/java/com/projectname/b2bshop/fragment/ProductDetailPageFragment.kt"])
 end
