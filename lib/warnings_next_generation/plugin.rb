@@ -1,23 +1,25 @@
 # frozen_string_literal: true
 
 module Danger
-  # This is your plugin class. Any attributes or methods you expose here will
-  # be available from within your Dangerfile.
+  # Generate code analysis reports on pull requests based on jenkins warnings-next-generation-plugin.
   #
-  # To be published on the Danger plugins site, you will need to have
-  # the public interface documented. Danger uses [YARD](http://yardoc.org/)
-  # for generating documentation from your plugin source, and you can verify
-  # by running `danger plugins lint` or `bundle exec rake spec`.
+  # @example Generate overview and tool reports for all code coverage tools.
+  #   warnings_next_generation.report
   #
-  # You should replace these comments with a public description of your library.
+  # @example Generate only overview report.
+  #   warnings_next_generation.overview_report
   #
-  # @example Ensure people are well warned about merging on Mondays
+  # @example Generate table of issues for all tools.
+  #   warnings_next_generation.tools_report
   #
-  #          my_plugin.warn_on_mondays
+  # @example Include only specific tools.
+  #   warnings_next_generation.tools_report(include: ['java', 'android-lint'])
+  #
+  # @example Create inline comments instead of issue table.
+  #   warnings_next_generation.tools_report(inline: true, baseline: 'path/to/workspace/repository')
   #
   # @see  Kyaak/danger-warnings_next_generation
-  # @tags monday, weekends, time, rattata
-  #
+  # @tags danger, warnings, jenkins, warnings-ng, warnings-next-generation, code-analysis, analysis
   class DangerWarningsNextGeneration < Plugin
     require "json"
     require "open-uri"
