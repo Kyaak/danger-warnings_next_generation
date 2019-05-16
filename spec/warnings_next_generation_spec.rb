@@ -206,13 +206,14 @@ module Danger
           expect(messages.length).to be(8)
         end
 
-        it "inline comments remove baselin" do
+        it "inline comments remove baseline" do
           aggregation_return("/assets/aggregation_single.json")
           details_return("/assets/java_all.json")
           @my_plugin.tools_report(inline: true, baseline: JAVA_ALL_BASELINE)
 
           message = @dangerfile.violation_report[:messages].first
           expect(message.file).not_to include(JAVA_ALL_BASELINE)
+          expect(message.file.chars.first).not_to eql('/')
         end
       end
     end

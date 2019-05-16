@@ -98,7 +98,11 @@ module Danger
     end
 
     def baseline(options)
-      options && !options[:baseline].nil? ? options[:baseline] : nil
+      base = options && !options[:baseline].nil? ? options[:baseline] : nil
+      if base && !base.chars.last.eql?("/")
+        base << "/"
+      end
+      base
     end
 
     def check_baseline(options)
