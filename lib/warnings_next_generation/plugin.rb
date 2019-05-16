@@ -79,7 +79,11 @@ module Danger
         if use_include_option?(options)
           next unless tool_ids.include?(id)
         end
-        tool_table(name, url)
+        if inline?(options) && check_baseline(options)
+          inline_report(url, baseline(options))
+        else
+          tool_table(name, url)
+        end
       end
     end
 
@@ -87,6 +91,20 @@ module Danger
 
     def include(options)
       options && !options[:include].nil? ? options[:include] : []
+    end
+
+    def inline?(options)
+      options && !options[:inline].nil? ? options[:inline] : false
+    end
+
+    def baseline(options)
+      options && !options[:baseline].nil? ? options[:baseline] : nil
+    end
+
+    def check_baseline(options)
+      raise "Please set 'baseline' for correct inline comments." unless baseline(options)
+
+      true
     end
 
     def use_include_option?(options)
@@ -110,6 +128,22 @@ module Danger
       content = +"### #{name}\n\n"
       content << table.to_markdown
       markdown(content)
+    end
+
+    def inline_report(url, baseline)
+      details = details_result(url)
+      issues = details["issues"]
+
+      issues.each do |issue|
+        severity = issue["severity"]
+        file = issue["fileName"].gsub(baseline, "")
+        line = issue["lineStart"]
+        message = issue["message"]
+        category = issue["category"]
+
+        inline_message = "#{severity}\n[#{category}]\n#{message}"
+        message(inline_message, file: file, line: line)
+      end
     end
 
     def tool_entries

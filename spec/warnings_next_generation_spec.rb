@@ -2,6 +2,7 @@
 
 require File.expand_path("spec_helper", __dir__)
 MARKDOWN_FIRST_TABLE_INDEX = 4
+JAVA_ALL_BASELINE = "/var/lib/jenkins/workspace/projectname/b2b-app-android-analyze/repository/"
 
 module Danger
   describe Danger::DangerWarningsNextGeneration do
@@ -185,6 +186,33 @@ module Danger
 
           markdowns = @dangerfile.status_report[:markdowns]
           expect(markdowns.length).to be(0)
+        end
+
+        it "inline missing baseline raises error" do
+          aggregation_return("/assets/aggregation_single.json")
+          details_return("/assets/java_all.json")
+          expect { @my_plugin.tools_report(inline: true) }.to raise_error(/set 'baseline'/)
+        end
+
+        it "creates inline comments" do
+          aggregation_return("/assets/aggregation_single.json")
+          details_return("/assets/java_all.json")
+          @my_plugin.tools_report(inline: true, baseline: JAVA_ALL_BASELINE)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(0)
+
+          messages = @dangerfile.status_report[:messages]
+          expect(messages.length).to be(8)
+        end
+
+        it "inline comments remove baselin" do
+          aggregation_return("/assets/aggregation_single.json")
+          details_return("/assets/java_all.json")
+          @my_plugin.tools_report(inline: true, baseline: JAVA_ALL_BASELINE)
+
+          message = @dangerfile.violation_report[:messages].first
+          expect(message.file).not_to include(JAVA_ALL_BASELINE)
         end
       end
     end

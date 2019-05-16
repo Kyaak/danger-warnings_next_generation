@@ -14,11 +14,11 @@ module WarningsNextGeneration
     def overview_header(*args)
       args.each_with_index do |item, index|
         @header << "#{item}#{COLUMN_SEPARATOR}"
-        if index.zero?
-          @header_separator << ":#{HEADER_SEPARATOR}#{COLUMN_SEPARATOR}"
-        else
-          @header_separator << ":#{HEADER_SEPARATOR}:#{COLUMN_SEPARATOR}"
-        end
+        @header_separator << if index.zero?
+                               ":#{HEADER_SEPARATOR}#{COLUMN_SEPARATOR}"
+                             else
+                               ":#{HEADER_SEPARATOR}:#{COLUMN_SEPARATOR}"
+                             end
       end
     end
 
