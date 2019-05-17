@@ -217,6 +217,119 @@ module Danger
           expect(message.file).not_to include(JAVA_ALL_BASELINE)
           expect(message.file.chars.first).not_to eql("/")
         end
+
+        it "message will not contain new lines" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          expect(issue["message"]).to include("\n")
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message.split("|").last).not_to include("\n")
+        end
+
+        it "category and type both added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = "TEST_CATEGORY"
+          issue["type"] = "TEST_TYPE"
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).to include("[TEST_CATEGORY - TEST_TYPE]")
+        end
+
+        it "type empty not added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = "TEST_CATEGORY"
+          issue["type"] = ""
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).to include("[TEST_CATEGORY]")
+        end
+
+        it "type nil not added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = "TEST_CATEGORY"
+          issue["type"] = nil
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).to include("[TEST_CATEGORY]")
+        end
+
+        it "category empty not added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = ""
+          issue["type"] = "TEST_TYPE"
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).to include("[TEST_TYPE]")
+        end
+
+        it "category nil not added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = nil
+          issue["type"] = "TEST_TYPE"
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).to include("[TEST_TYPE]")
+        end
+
+        it "category and type empty not added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = ""
+          issue["type"] = ""
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).not_to include("[")
+          expect(markdowns.first.message).not_to include("]")
+        end
+
+        it "category and type nil not added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = nil
+          issue["type"] = nil
+          details_return_issue(issues)
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).not_to include("[")
+          expect(markdowns.first.message).not_to include("]")
+        end
       end
     end
   end
@@ -238,6 +351,37 @@ def details_return(file)
   content = File.read(File.dirname(__FILE__) + file)
   json = JSON.parse(content)
   @my_plugin.stubs(:details_result).returns(json)
+end
+
+def details_return_issue(issue)
+  @my_plugin.stubs(:details_result).returns(issue)
+end
+
+def android_lint_issues
+  json = {
+    "issues": [
+      {
+        "baseName": "AndroidManifest.xml",
+        "category": "Internationalization:Bidirectional Text",
+        "columnEnd": 0,
+        "columnStart": 0,
+        "description": "",
+        "fileName": "/var/lib/jenkins/workspace/Jenkins/Examples/android/MR6--danger/repository/mylibrary/src/main/AndroidManifest.xml",
+        "fingerprint": "4F7305CA47CE9CFC2A8E9BE4287E79F8",
+        "lineEnd": 0,
+        "lineStart": 0,
+        "message": "Using RTL attributes without enabling RTL support\nThe project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest\nTo enable right-to-left support, when running on API 17 and higher, you must set the `android:supportsRtl` attribute in the manifest `<application>` element.&#xA;&#xA;If you have started adding RTL attributes, but have not yet finished the migration, you can set the attribute to false to satisfy this lint check.",
+        "moduleName": "",
+        "origin": "android-lint",
+        "packageName": "-",
+        "reference": "3",
+        "severity": "NORMAL",
+        "type": "RtlEnabled",
+      },
+    ],
+  }
+  serialized = JSON.generate(json)
+  JSON.parse(serialized)
 end
 
 def target_files_return_java_all
