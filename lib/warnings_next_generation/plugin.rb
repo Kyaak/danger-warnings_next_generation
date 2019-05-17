@@ -197,17 +197,17 @@ module Danger
     end
 
     def details_result(url)
-      content = OpenURI.open("#{url}/all/api/json").read
+      content = OpenURI.open_uri("#{url}/all/api/json").read
       JSON.parse(content)
     end
 
     def overview_result(url)
-      content = OpenURI.open("#{url}/api/json").read
+      content = OpenURI.open_uri("#{url}/api/json").read
       JSON.parse(content)
     end
 
     def aggregation_result
-      content = OpenURI.open("#{ENV['BUILD_URL']}/warnings-ng/api/json").read
+      content = OpenURI.open_uri("#{ENV['BUILD_URL']}/warnings-ng/api/json").read
       JSON.parse(content)
     end
   end
