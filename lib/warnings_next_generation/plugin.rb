@@ -167,9 +167,8 @@ module Danger
         severity = issue["severity"]
         file = File.basename(issue["fileName"])
         line = issue["lineStart"]
-        message = issue["message"]
-        category = issue["category"]
-        table.line(severity, "#{file}:#{line}", "[#{category}] #{message}")
+        message = issue["message"].gsub("\n", ". ")
+        table.line(severity, "#{file}:#{line}", "#{category_type(issue)} #{message}")
       end
       content = +"### #{name}\n\n"
       content << table.to_markdown
@@ -185,13 +184,27 @@ module Danger
         file = issue["fileName"].gsub(baseline, "")
         line = issue["lineStart"]
         message = issue["message"]
-        category = issue["category"]
 
         next unless file_in_changeset?(file)
 
-        inline_message = "#{severity}\n[#{category}]\n#{message}"
+        inline_message = "#{severity}\n#{category_type(issue)}\n#{message}"
         message(inline_message, file: file, line: line)
       end
+    end
+
+    def category_type(issue)
+      category = issue["category"]
+      type = issue["type"]
+      result = ""
+
+      if (category && !category.empty?) || (type && !type.empty?)
+        result = +"["
+        result << category.to_s unless category&.empty?
+        result << " - " if (category && !category.empty?) && (type && !type.empty?)
+        result << type.to_s unless type&.empty?
+        result << "]"
+      end
+      result
     end
 
     def tool_entries

@@ -101,16 +101,15 @@ This plugin is inspired and works only with the jenkins [warnings-ng-plugin](htt
 |**Severity**|**File**|**Description**|
 |---|---|---|
 |NORMAL|ProductDetailPageFragment.kt:135|[Deprecation] 'getColor(Int): Int' is deprecated. Deprecated in Java|
-|NORMAL|ImageGalleryFragment.kt:40|[] Type mismatch: inferred type is java.util.ArrayList<String!>? but kotlin.collections.ArrayList<String> /* = java.util.ArrayList<String> */ was expected|
-|NORMAL|ImageGalleryFragment.kt:87|[Deprecation] 'getColor(Int): Int' is deprecated. Deprecated in Java|
-|NORMAL|ImageGalleryFragment.kt:90|[Deprecation] 'getColor(Int): Int' is deprecated. Deprecated in Java|
+|NORMAL|ImageGalleryFragment.kt:40|Type mismatch: inferred type is java.util.ArrayList<String!>? but kotlin.collections.ArrayList<String> /* = java.util.ArrayList<String> */ was expected|
+|NORMAL|MyUtil.java:5|[Design - HideUtilityClassConstructorCheck] 'getColor(Int): Int' is deprecated. Deprecated in Java|
 
 
 ### As inline
 ```text
 NORMAL
-[Deprecation]
-getColor(Int): Int' is deprecated. Deprecated in Java
+[Correctness - GradleDependency]
+Obsolete Gradle Dependency A newer version of com.android.support:design than 27.1.1 is available: 28.0.0 This detector looks for usages of libraries where the version you are using is not the current stable release. Using older versions is fine, and there are cases where you deliberately want to stick with an older version. However, you may simply not be aware that a more recent version is available, and that is what this lint check helps find.
 ```
 
 ## Installation
