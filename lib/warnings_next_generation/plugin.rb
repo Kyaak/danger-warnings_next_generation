@@ -37,6 +37,7 @@ module Danger
 
     def initialize(dangerfile)
       @target_files = []
+      @auth = nil
       super(dangerfile)
     end
 
@@ -59,6 +60,7 @@ module Danger
       overview_table = WarningsNextGeneration::MarkdownTable.new
       overview_table.overview_header(TABLE_HEADER_TOOL, EMOJI_BEETLE, EMOJI_X, EMOJI_CHECK_MARK)
       options = args.first
+      check_auth(options)
       tool_ids = include(options)
       entry_count = 0
 
@@ -88,6 +90,7 @@ module Danger
     # @return [void]
     def tools_report(*args)
       options = args.first
+      check_auth(options)
       tool_ids = include(options)
 
       tools = tool_entries
@@ -123,6 +126,25 @@ module Danger
         base << "/"
       end
       base
+    end
+
+    def auth_user(options)
+      options && !options[:auth_user].nil? ? options[:auth_user] : nil
+    end
+
+    def auth_token(options)
+      options && !options[:auth_token].nil? ? options[:auth_token] : nil
+    end
+
+    def check_auth(options)
+      user = auth_user(options)
+      token = auth_token(options)
+      if user && token
+        @auth = {
+          user: user,
+          token: token,
+        }
+      end
     end
 
     def check_baseline(options)
@@ -197,17 +219,29 @@ module Danger
     end
 
     def details_result(url)
-      content = OpenURI.open_uri("#{url}/all/api/json").read
+      options = { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }
+      if @auth
+        options[:http_basic_authentication] = [@auth[:user], @auth[:token]]
+      end
+      content = OpenURI.open_uri("#{url}/all/api/json", options).read
       JSON.parse(content)
     end
 
     def overview_result(url)
-      content = OpenURI.open_uri("#{url}/api/json").read
+      options = { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }
+      if @auth
+        options[:http_basic_authentication] = [@auth[:user], @auth[:token]]
+      end
+      content = OpenURI.open_uri("#{url}/api/json", options).read
       JSON.parse(content)
     end
 
     def aggregation_result
-      content = OpenURI.open_uri("#{ENV['BUILD_URL']}/warnings-ng/api/json").read
+      options = { ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE }
+      if @auth
+        options[:http_basic_authentication] = [@auth[:user], @auth[:token]]
+      end
+      content = OpenURI.open_uri("#{ENV['BUILD_URL']}/warnings-ng/api/json", options).read
       JSON.parse(content)
     end
   end
