@@ -13,11 +13,11 @@
 <div align="center">
   <!-- Version -->
   <a href="https://badge.fury.io/rb/danger-warnings_next_generation">
-    <img src="https://badge.fury.io/rb/danger-warnings.svg" alt="Version" />
+    <img src="https://badge.fury.io/rb/danger-warnings_next_generation.svg" alt="Version" />
   </a>
   <!-- Downloads -->
   <a href="https://badge.fury.io/rb/danger-warnings_next_generation">
-    <img src="https://img.shields.io/gem/dt/danger-warnings.svg" alt="Downloads" />
+    <img src="https://img.shields.io/gem/dt/danger-warnings_next_generation.svg" alt="Downloads" />
   </a>
 </div>
 
