@@ -163,3 +163,26 @@ warnings_next_generation.tools_report(
 )
 </pre>
 </blockquote>   
+
+## Authentication
+
+If you run a jenkins server with required authentication you can pass them to `danger-warnings_next_generation`.
+Create an API token with your CI user and do not pass normal password credentials.
+
+<blockquote>Run all with authentication
+<pre>
+warnings_next_generation.report(
+    auth_user: "jenkins",
+    auth_token: "MY_TOKEN"
+)
+</pre>
+</blockquote>   
+
+<blockquote>Run overview with authentication
+<pre>
+warnings_next_generation.overview_report(
+    auth_user: "jenkins",
+    auth_token: "MY_TOKEN"
+)
+</pre>
+</blockquote>   
