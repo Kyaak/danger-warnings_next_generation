@@ -167,7 +167,7 @@ module Danger
         severity = issue["severity"]
         file = File.basename(issue["fileName"])
         line = issue["lineStart"]
-        message = issue["message"].gsub("\n", ". ")
+        message = issue["message"].gsub("\n", " ")
         table.line(severity, "#{file}:#{line}", "#{category_type(issue)} #{message}")
       end
       content = +"### #{name}\n\n"
