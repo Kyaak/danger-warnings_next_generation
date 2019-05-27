@@ -70,17 +70,15 @@ module Danger
         url = tool["latestUrl"]
         id = tool["id"]
 
-        if use_include_option?(options)
-          next unless tool_ids.include?(id)
-        end
+        next if use_include_option?(options) && !tool_ids.include?(id)
+
         overview = overview_result(url)
         entry_count += 1
         overview_entry(overview_table, name, overview)
       end
 
-      if use_include_option?(options)
-        return if entry_count.zero?
-      end
+      return if use_include_option?(options) && entry_count.zero?
+
       markdown("#{WNG_OVERVIEW_TITLE}\n\n#{overview_table.to_markdown}")
     end
 
@@ -99,9 +97,8 @@ module Danger
         url = tool["latestUrl"]
         id = tool["id"]
 
-        if use_include_option?(options)
-          next unless tool_ids.include?(id)
-        end
+        next if use_include_option?(options) && !tool_ids.include?(id)
+
         if inline?(options) && check_baseline(options)
           inline_report(url, baseline(options))
         else
