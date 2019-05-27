@@ -168,11 +168,17 @@ module Danger
         file = File.basename(issue["fileName"])
         line = issue["lineStart"]
         message = issue["message"].gsub("\n", " ")
+
+        next unless basename_in_changeset?(file)
+
         table.line(severity, "#{file}:#{line}", "#{category_type(issue)} #{message}")
       end
-      content = +"### #{name}\n\n"
-      content << table.to_markdown
-      markdown(content)
+
+      unless table.size.zero?
+        content = +"### #{name}\n\n"
+        content << table.to_markdown
+        markdown(content)
+      end
     end
 
     def inline_report(url, baseline)
@@ -221,6 +227,16 @@ module Danger
 
     def file_in_changeset?(file)
       target_files.include?(file)
+    end
+
+    def basename_in_changeset?(file)
+      result = false
+      target_files.each do |change|
+        break if result
+
+        result = change.include?(File.basename(file))
+      end
+      result
     end
 
     def target_files
