@@ -94,7 +94,7 @@ This plugin is inspired and works only with the jenkins [warnings-ng-plugin](htt
 |Android Lint Warnings|10|0|3|
 |PMD Warnings|:star:|0|0|
 |Detekt Warnings|10|5|5|
-|Checkstyle|:star:|0|3|
+|Checkstyle Warnings|:star:|0|3|
 
 ### Java Warnings
 
