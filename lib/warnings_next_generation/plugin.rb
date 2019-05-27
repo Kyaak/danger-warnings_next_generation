@@ -70,17 +70,15 @@ module Danger
         url = tool["latestUrl"]
         id = tool["id"]
 
-        if use_include_option?(options)
-          next unless tool_ids.include?(id)
-        end
+        next if use_include_option?(options) && !tool_ids.include?(id)
+
         overview = overview_result(url)
         entry_count += 1
         overview_entry(overview_table, name, overview)
       end
 
-      if use_include_option?(options)
-        return if entry_count.zero?
-      end
+      return if use_include_option?(options) && entry_count.zero?
+
       markdown("#{WNG_OVERVIEW_TITLE}\n\n#{overview_table.to_markdown}")
     end
 
@@ -99,9 +97,8 @@ module Danger
         url = tool["latestUrl"]
         id = tool["id"]
 
-        if use_include_option?(options)
-          next unless tool_ids.include?(id)
-        end
+        next if use_include_option?(options) && !tool_ids.include?(id)
+
         if inline?(options) && check_baseline(options)
           inline_report(url, baseline(options))
         else
@@ -168,11 +165,17 @@ module Danger
         file = File.basename(issue["fileName"])
         line = issue["lineStart"]
         message = issue["message"].gsub("\n", " ")
+
+        next unless basename_in_changeset?(file)
+
         table.line(severity, "#{file}:#{line}", "#{category_type(issue)} #{message}")
       end
-      content = +"### #{name}\n\n"
-      content << table.to_markdown
-      markdown(content)
+
+      unless table.size.zero?
+        content = +"### #{name}\n\n"
+        content << table.to_markdown
+        markdown(content)
+      end
     end
 
     def inline_report(url, baseline)
@@ -221,6 +224,16 @@ module Danger
 
     def file_in_changeset?(file)
       target_files.include?(file)
+    end
+
+    def basename_in_changeset?(file)
+      result = false
+      target_files.each do |change|
+        break if result
+
+        result = change.include?(File.basename(file))
+      end
+      result
     end
 
     def target_files

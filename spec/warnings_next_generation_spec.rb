@@ -14,6 +14,7 @@ module Danger
       before do
         @dangerfile = testing_dangerfile
         @my_plugin = @dangerfile.warnings_next_generation
+        target_files_return_java_all
       end
 
       describe "overview_report" do
@@ -129,7 +130,7 @@ module Danger
       describe "tools_report" do
         it "list all entries" do
           aggregation_return("/assets/aggregation_single.json")
-          details_return("/assets/java_all.json")
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -141,7 +142,7 @@ module Danger
 
         it "no configuration list all warnings reports" do
           aggregation_return("/assets/aggregation.json")
-          details_return("/assets/java_all.json")
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -150,7 +151,7 @@ module Danger
 
         it "single include adds table" do
           aggregation_return("/assets/aggregation.json")
-          details_return("/assets/java_all.json")
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report(include: ["java"])
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -160,7 +161,7 @@ module Danger
 
         it "multiple include adds table for each" do
           aggregation_return("/assets/aggregation.json")
-          details_return("/assets/java_all.json")
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report(include: %w(java pmd))
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -172,7 +173,7 @@ module Danger
 
         it "empty includes add no overview" do
           aggregation_return("/assets/aggregation.json")
-          details_return("/assets/java_all.json")
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report(include: [])
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -181,7 +182,7 @@ module Danger
 
         it "wrong includes add no overview" do
           aggregation_return("/assets/aggregation.json")
-          details_return("/assets/java_all.json")
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report(include: ["not_existing"])
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -190,14 +191,13 @@ module Danger
 
         it "inline missing baseline raises error" do
           aggregation_return("/assets/aggregation_single.json")
-          details_return("/assets/java_all.json")
+          details_return("/assets/java_detail_all.json")
           expect { @my_plugin.tools_report(inline: true) }.to raise_error(/set 'baseline'/)
         end
 
         it "creates inline comments" do
           aggregation_return("/assets/aggregation_single.json")
-          details_return("/assets/java_all.json")
-          target_files_return_java_all
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report(inline: true, baseline: JAVA_ALL_BASELINE)
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -209,8 +209,7 @@ module Danger
 
         it "inline comments remove baseline" do
           aggregation_return("/assets/aggregation_single.json")
-          details_return("/assets/java_all.json")
-          target_files_return_java_all
+          details_return("/assets/java_detail_all.json")
           @my_plugin.tools_report(inline: true, baseline: JAVA_ALL_BASELINE)
 
           message = @dangerfile.violation_report[:messages].first
@@ -224,6 +223,7 @@ module Danger
           issue = issues["issues"].first
           expect(issue["message"]).to include("\n")
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -238,6 +238,7 @@ module Danger
           issue["category"] = "TEST_CATEGORY"
           issue["type"] = "TEST_TYPE"
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -252,6 +253,7 @@ module Danger
           issue["category"] = "TEST_CATEGORY"
           issue["type"] = ""
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -266,6 +268,7 @@ module Danger
           issue["category"] = "TEST_CATEGORY"
           issue["type"] = nil
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -280,6 +283,7 @@ module Danger
           issue["category"] = ""
           issue["type"] = "TEST_TYPE"
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -294,6 +298,7 @@ module Danger
           issue["category"] = nil
           issue["type"] = "TEST_TYPE"
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -308,6 +313,7 @@ module Danger
           issue["category"] = ""
           issue["type"] = ""
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
@@ -323,12 +329,23 @@ module Danger
           issue["category"] = nil
           issue["type"] = nil
           details_return_issue(issues)
+          target_files_return_manifest
           @my_plugin.tools_report
 
           markdowns = @dangerfile.status_report[:markdowns]
           expect(markdowns.length).to be(1)
           expect(markdowns.first.message).not_to include("[")
           expect(markdowns.first.message).not_to include("]")
+        end
+
+        it "no changed files match does not add report" do
+          aggregation_return("/assets/aggregation_single.json")
+          details_return("/assets/java_detail_one.json")
+          target_files_return(["Unmatched.java"])
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(0)
         end
       end
     end
@@ -385,8 +402,16 @@ def android_lint_issues
 end
 
 def target_files_return_java_all
-  @my_plugin.stubs(:target_files).returns(["app/src/main/java/com/projectname/b2bshop/fragment/gallery/ImageGalleryFragment.kt",
-                                           "app/src/main/java/com/projectname/b2bshop/webservice/requestqueue/RequestQueue.java",
-                                           "app/src/main/java/com/projectname/b2bshop/webservice/requestqueue/RequestQueueImpl.java",
-                                           "app/src/main/java/com/projectname/b2bshop/fragment/ProductDetailPageFragment.kt"])
+  target_files_return(["app/src/main/java/com/projectname/b2bshop/fragment/gallery/ImageGalleryFragment.kt",
+                       "app/src/main/java/com/projectname/b2bshop/webservice/requestqueue/RequestQueue.java",
+                       "app/src/main/java/com/projectname/b2bshop/webservice/requestqueue/RequestQueueImpl.java",
+                       "app/src/main/java/com/projectname/b2bshop/fragment/ProductDetailPageFragment.kt"])
+end
+
+def target_files_return_manifest
+  target_files_return(["AndroidManifest.xml"])
+end
+
+def target_files_return(list)
+  @my_plugin.stubs(:target_files).returns(list)
 end

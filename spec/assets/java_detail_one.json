@@ -1,0 +1,24 @@
+{
+  "_class": "io.jenkins.plugins.analysis.core.restapi.ReportApi",
+  "issues": [
+    {
+      "baseName": "ProductDetailPageFragment.kt",
+      "category": "Deprecation",
+      "columnEnd": 54,
+      "columnStart": 54,
+      "description": "",
+      "fileName": "/var/lib/jenkins/workspace/projectname/b2b-app-android-analyze/repository/app/src/main/java/com/projectname/b2bshop/fragment/ProductDetailPageFragment.kt",
+      "fingerprint": "07D91BE07253C0864B9B4F05F0308B28",
+      "lineEnd": 135,
+      "lineStart": 135,
+      "message": "'getColor(Int): Int' is deprecated. Deprecated in Java",
+      "moduleName": "",
+      "origin": "java",
+      "packageName": "-",
+      "reference": "5",
+      "severity": "NORMAL",
+      "type": "-"
+    }
+  ],
+  "size": 1
+}

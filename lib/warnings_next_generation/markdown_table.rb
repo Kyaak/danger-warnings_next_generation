@@ -22,6 +22,10 @@ module WarningsNextGeneration
       end
     end
 
+    def size
+      @lines.length
+    end
+
     def detail_header(*args)
       args.each do |item|
         @header << "#{item}#{COLUMN_SEPARATOR}"
