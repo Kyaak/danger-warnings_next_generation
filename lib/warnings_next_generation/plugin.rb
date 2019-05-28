@@ -119,6 +119,7 @@ module Danger
 
     def baseline(options)
       base = options && !options[:baseline].nil? ? options[:baseline] : nil
+      base = base.dup if base
       if base && !base.chars.last.eql?("/")
         base << "/"
       end
