@@ -200,14 +200,24 @@ module Danger
       type = issue["type"]
       result = ""
 
-      if (category && !category.empty?) || (type && !type.empty?)
+      category_valid_ = category_valid?(category)
+      type_valid_ = type_valid?(type)
+      if category_valid_ || type_valid_
         result = +"["
-        result << category.to_s unless category&.empty?
-        result << " - " if (category && !category.empty?) && (type && !type.empty?)
-        result << type.to_s unless type&.empty?
+        result << category.to_s if category_valid_
+        result << " - " if category_valid_ && type_valid_
+        result << type.to_s if type_valid_
         result << "]"
       end
       result
+    end
+
+    def category_valid?(category)
+      category && !category.empty?
+    end
+
+    def type_valid?(type)
+      type && !type.empty? && !type.eql?("-")
     end
 
     def tool_entries
