@@ -207,6 +207,22 @@ module Danger
           expect(messages.length).to be(8)
         end
 
+        it "baseline frozen string is modifiable" do
+          aggregation_return("/assets/aggregation_single.json")
+          details_return("/assets/java_detail_all.json")
+          baseline = JAVA_ALL_BASELINE.chomp("/").freeze
+          expect(baseline.chars.last).not_to be("/")
+          expect(baseline.frozen?).to be_truthy
+
+          @my_plugin.tools_report(inline: true, baseline: baseline)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(0)
+
+          messages = @dangerfile.status_report[:messages]
+          expect(messages.length).to be(8)
+        end
+
         it "inline comments remove baseline" do
           aggregation_return("/assets/aggregation_single.json")
           details_return("/assets/java_detail_all.json")
