@@ -261,6 +261,21 @@ module Danger
           expect(markdowns.first.message).to include("[TEST_CATEGORY]")
         end
 
+        it "type is dash not added" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues
+          issue = issues["issues"].first
+          issue["category"] = "TEST_CATEGORY"
+          issue["type"] = "-"
+          details_return_issue(issues)
+          target_files_return_manifest
+          @my_plugin.tools_report
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          expect(markdowns.length).to be(1)
+          expect(markdowns.first.message).to include("[TEST_CATEGORY]")
+        end
+
         it "type nil not added" do
           aggregation_return("/assets/aggregation_single.json")
           issues = android_lint_issues
