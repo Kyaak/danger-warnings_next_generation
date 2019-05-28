@@ -36,7 +36,7 @@ module Danger
     WNG_OVERVIEW_TITLE = "### Warnings Next Generation Overview"
 
     def initialize(dangerfile)
-      @target_files = []
+      @target_files = nil
       @auth = nil
       super(dangerfile)
     end
