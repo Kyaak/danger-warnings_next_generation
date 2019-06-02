@@ -100,7 +100,7 @@ module Danger
         next if use_include_option?(options) && !tool_ids.include?(id)
 
         if inline?(options) && check_baseline(options)
-          inline_report(url, baseline(options))
+          inline_report(name, url, baseline(options))
         else
           tool_table(name, url)
         end
@@ -179,7 +179,7 @@ module Danger
       end
     end
 
-    def inline_report(url, baseline)
+    def inline_report(name, url, baseline)
       details = details_result(url)
       issues = details["issues"]
 
@@ -191,7 +191,7 @@ module Danger
 
         next unless file_in_changeset?(file)
 
-        inline_message = "#{severity}\n#{category_type(issue)}\n#{message}"
+        inline_message = "\n**#{name}** - #{severity}\n#{category_type(issue)}\n#{message}"
         message(inline_message, file: file, line: line)
       end
     end
