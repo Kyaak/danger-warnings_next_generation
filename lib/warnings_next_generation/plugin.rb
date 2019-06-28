@@ -92,6 +92,8 @@ module Danger
       tool_ids = include(options)
 
       tools = tool_entries
+
+      collected_details = []
       tools.each do |tool|
         name = tool["name"]
         url = tool["latestUrl"]
@@ -99,10 +101,31 @@ module Danger
 
         next if use_include_option?(options) && !tool_ids.include?(id)
 
-        if inline?(options) && check_baseline(options)
-          inline_report(name, url, baseline(options))
+        details = details_result(url)
+        collected_details << {
+          name: name,
+          details: details,
+        }
+      end
+
+      threshold = options[:inline_threshold] if options
+      force_table = false
+      if threshold
+        sum = 0
+        collected_details.each do |details|
+          sum += details[:details]["issues"].size
+        end
+        force_table = true if sum >= threshold
+      end
+
+      collected_details.each do |details|
+        name = details[:name]
+        detail_item = details[:details]
+
+        if inline?(options) && check_baseline(options) && !force_table
+          inline_report(name, detail_item, baseline(options))
         else
-          tool_table(name, url)
+          tool_table(name, detail_item)
         end
       end
     end
@@ -155,8 +178,7 @@ module Danger
       !options.nil? && !options[:include].nil?
     end
 
-    def tool_table(name, url)
-      details = details_result(url)
+    def tool_table(name, details)
       issues = details["issues"]
 
       table = WarningsNextGeneration::MarkdownTable.new
@@ -179,8 +201,7 @@ module Danger
       end
     end
 
-    def inline_report(name, url, baseline)
-      details = details_result(url)
+    def inline_report(name, details, baseline)
       issues = details["issues"]
 
       issues.each do |issue|
