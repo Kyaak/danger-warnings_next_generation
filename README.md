@@ -185,3 +185,16 @@ warnings_next_generation.overview_report(
 )
 </pre>
 </blockquote>   
+
+## Comments threshold
+
+Switch from inline comments to table comment if all issues >= threshold.
+
+<blockquote>Switch to table comment if combined issues size >= 15
+<pre>
+warnings_next_generation.report(
+    inline_threshold: 15
+)
+</pre>
+</blockquote>   
+

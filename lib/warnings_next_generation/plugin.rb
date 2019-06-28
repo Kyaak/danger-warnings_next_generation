@@ -89,34 +89,9 @@ module Danger
     def tools_report(*args)
       options = args.first
       check_auth(options)
-      tool_ids = include(options)
 
-      tools = tool_entries
-
-      collected_details = []
-      tools.each do |tool|
-        name = tool["name"]
-        url = tool["latestUrl"]
-        id = tool["id"]
-
-        next if use_include_option?(options) && !tool_ids.include?(id)
-
-        details = details_result(url)
-        collected_details << {
-          name: name,
-          details: details,
-        }
-      end
-
-      threshold = options[:inline_threshold] if options
-      force_table = false
-      if threshold
-        sum = 0
-        collected_details.each do |details|
-          sum += details[:details]["issues"].size
-        end
-        force_table = true if sum >= threshold
-      end
+      collected_details = collect_details(options)
+      force_table = should_force_table(options, collected_details)
 
       collected_details.each do |details|
         name = details[:name]
@@ -131,6 +106,40 @@ module Danger
     end
 
     private
+
+    def should_force_table(options, collected_details)
+      result = false
+      threshold = options[:inline_threshold] if options
+      if threshold
+        sum = 0
+        collected_details.each do |details|
+          sum += details[:details]["issues"].size
+        end
+        result = true if sum >= threshold
+      end
+      result
+    end
+
+    def collect_details(options)
+      tool_ids = include(options)
+
+      tools = tool_entries
+      result = []
+      tools.each do |tool|
+        name = tool["name"]
+        url = tool["latestUrl"]
+        id = tool["id"]
+
+        next if use_include_option?(options) && !tool_ids.include?(id)
+
+        details = details_result(url)
+        result << {
+          name: name,
+          details: details,
+        }
+      end
+      result
+    end
 
     def include(options)
       options && !options[:include].nil? ? options[:include] : []
