@@ -378,6 +378,147 @@ module Danger
           markdowns = @dangerfile.status_report[:markdowns]
           expect(markdowns.length).to be(0)
         end
+
+        it "creates inline comments if issues lower than threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(14)
+          expect(issues["issues"].size).to be(14)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(14)
+        end
+
+        it "creates table comment if issues equal than threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(15)
+          expect(issues["issues"].size).to be(15)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(1)
+          expect(messages.length).to be(0)
+        end
+
+        it "creates table comment if issues greater than threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(16)
+          expect(issues["issues"].size).to be(16)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(1)
+          expect(messages.length).to be(0)
+        end
+
+        it "creates table comment if issues of multiple reports greater than threshold" do
+          aggregation_return("/assets/aggregation.json")
+          issues = android_lint_issues(9)
+          expect(issues["issues"].size).to be(9)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(8)
+          expect(messages.length).to be(0)
+        end
+
+        it "creates inline comment if issues of multiple reports lower threshold" do
+          aggregation_return("/assets/aggregation.json")
+          issues = android_lint_issues(10)
+          expect(issues["issues"].size).to be(10)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 100)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(80)
+        end
+
+        it "creates inline comments if issues lower than inline_threshold and table_threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(14)
+          expect(issues["issues"].size).to be(14)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 15, table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(14)
+        end
+
+        it "creates table comments if issues higher than inline_threshold and lower table_threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(14)
+          expect(issues["issues"].size).to be(14)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 10, table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(1)
+          expect(messages.length).to be(0)
+        end
+
+        it "creates warning comment if issues greater than table_threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(16)
+          expect(issues["issues"].size).to be(16)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          warnings = @dangerfile.status_report[:warnings]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(0)
+          expect(warnings.length).to be(1)
+          expect(warnings[0]).to include("Java Warnings")
+          expect(warnings[0]).to include("16 issues")
+        end
+
+        it "creates warning comment if issues greater than inline and table threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(16)
+          expect(issues["issues"].size).to be(16)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 10, table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          warnings = @dangerfile.status_report[:warnings]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(0)
+          expect(warnings.length).to be(1)
+          expect(warnings[0]).to include("Java Warnings")
+          expect(warnings[0]).to include("16 issues")
+        end
       end
     end
   end
@@ -405,29 +546,33 @@ def details_return_issue(issue)
   @my_plugin.stubs(:details_result).returns(issue)
 end
 
-def android_lint_issues
+def android_lint_issues(count = 1)
   json = {
-    "issues": [
-      {
-        "baseName": "AndroidManifest.xml",
-        "category": "Internationalization:Bidirectional Text",
-        "columnEnd": 0,
-        "columnStart": 0,
-        "description": "",
-        "fileName": "/var/lib/jenkins/workspace/Jenkins/Examples/android/MR6--danger/repository/mylibrary/src/main/AndroidManifest.xml",
-        "fingerprint": "4F7305CA47CE9CFC2A8E9BE4287E79F8",
-        "lineEnd": 0,
-        "lineStart": 0,
-        "message": "Using RTL attributes without enabling RTL support\nThe project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest\nTo enable right-to-left support, when running on API 17 and higher, you must set the `android:supportsRtl` attribute in the manifest `<application>` element.&#xA;&#xA;If you have started adding RTL attributes, but have not yet finished the migration, you can set the attribute to false to satisfy this lint check.",
-        "moduleName": "",
-        "origin": "android-lint",
-        "packageName": "-",
-        "reference": "3",
-        "severity": "NORMAL",
-        "type": "RtlEnabled",
-      },
-    ],
+    "issues": [],
   }
+
+  items = 0
+  while items < count
+    json[:issues] << {
+      "baseName": "AndroidManifest.xml",
+      "category": "Internationalization:Bidirectional Text",
+      "columnEnd": 0,
+      "columnStart": 0,
+      "description": "",
+      "fileName": "/var/lib/jekins/workspace/Jenkins/Examples/android/MR6--danger/repository/mylibrary/src/main/AndroidManifest.xml",
+      "fingerprint": "4F7305CA47CE9CFC2A8E9BE4287E79F8",
+      "lineEnd": 0,
+      "lineStart": 0,
+      "message": "Using RTL attributes without enabling RTL support\nThe project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest\nTo enable right-to-left support, when running on API 17 and higher, you must set the `android:supportsRtl` attribute in the manifest `<application>` element.&#xA;&#xA;If you have started adding RTL attributes, but have not yet finished the migration, you can set the attribute to false to satisfy this lint check.",
+      "moduleName": "",
+      "origin": "android-lint",
+      "packageName": "-",
+      "reference": "3",
+      "severity": "NORMAL",
+      "type": "RtlEnabled",
+    }
+    items += 1
+  end
   serialized = JSON.generate(json)
   JSON.parse(serialized)
 end
@@ -445,4 +590,12 @@ end
 
 def target_files_return(list)
   @my_plugin.stubs(:target_files).returns(list)
+end
+
+def mock_file_in_changeset(value)
+  @my_plugin.stubs(:file_in_changeset?).returns(value)
+end
+
+def mock_basename_in_changeset(value)
+  @my_plugin.stubs(:basename_in_changeset?).returns(value)
 end

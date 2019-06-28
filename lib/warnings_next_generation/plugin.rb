@@ -89,9 +89,58 @@ module Danger
     def tools_report(*args)
       options = args.first
       check_auth(options)
+
+      collected_details = collect_details(options)
+      force_table = should_force_table(options, collected_details)
+      force_warning = should_force_warning(options, collected_details)
+
+      collected_details.each do |details|
+        name = details[:name]
+        detail_item = details[:details]
+
+        if inline?(options) && check_baseline(options) && !force_table
+          inline_report(name, detail_item, baseline(options))
+        elsif !force_warning
+          tool_table(name, detail_item)
+        else
+          warn("**#{name}** has #{detail_item['issues'].size} issues.")
+        end
+      end
+    end
+
+    private
+
+    def should_force_table(options, collected_details)
+      result = false
+      threshold = options[:inline_threshold] if options
+      if threshold
+        sum = 0
+        collected_details.each do |details|
+          sum += details[:details]["issues"].size
+        end
+        result = true if sum >= threshold
+      end
+      result
+    end
+
+    def should_force_warning(options, collected_details)
+      result = false
+      threshold = options[:table_threshold] if options
+      if threshold
+        sum = 0
+        collected_details.each do |details|
+          sum += details[:details]["issues"].size
+        end
+        result = true if sum >= threshold
+      end
+      result
+    end
+
+    def collect_details(options)
       tool_ids = include(options)
 
       tools = tool_entries
+      result = []
       tools.each do |tool|
         name = tool["name"]
         url = tool["latestUrl"]
@@ -99,15 +148,14 @@ module Danger
 
         next if use_include_option?(options) && !tool_ids.include?(id)
 
-        if inline?(options) && check_baseline(options)
-          inline_report(name, url, baseline(options))
-        else
-          tool_table(name, url)
-        end
+        details = details_result(url)
+        result << {
+          name: name,
+          details: details,
+        }
       end
+      result
     end
-
-    private
 
     def include(options)
       options && !options[:include].nil? ? options[:include] : []
@@ -155,8 +203,7 @@ module Danger
       !options.nil? && !options[:include].nil?
     end
 
-    def tool_table(name, url)
-      details = details_result(url)
+    def tool_table(name, details)
       issues = details["issues"]
 
       table = WarningsNextGeneration::MarkdownTable.new
@@ -179,8 +226,7 @@ module Danger
       end
     end
 
-    def inline_report(name, url, baseline)
-      details = details_result(url)
+    def inline_report(name, details, baseline)
       issues = details["issues"]
 
       issues.each do |issue|
