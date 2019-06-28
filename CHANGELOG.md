@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2019-6-28
 ### Added
 - Option `inline_threshold`
+- Option `table_threshold`
 
 ## [0.1.5] - 2019-6-02
 ### Changed
