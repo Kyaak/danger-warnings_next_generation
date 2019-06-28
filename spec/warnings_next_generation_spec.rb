@@ -452,6 +452,73 @@ module Danger
           expect(markdowns.length).to be(0)
           expect(messages.length).to be(80)
         end
+
+        it "creates inline comments if issues lower than inline_threshold and table_threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(14)
+          expect(issues["issues"].size).to be(14)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 15, table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(14)
+        end
+
+        it "creates table comments if issues higher than inline_threshold and lower table_threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(14)
+          expect(issues["issues"].size).to be(14)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 10, table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(1)
+          expect(messages.length).to be(0)
+        end
+
+        it "creates warning comment if issues greater than table_threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(16)
+          expect(issues["issues"].size).to be(16)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          warnings = @dangerfile.status_report[:warnings]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(0)
+          expect(warnings.length).to be(1)
+          expect(warnings[0]).to include("Java Warnings")
+          expect(warnings[0]).to include("16 issues")
+        end
+
+        it "creates warning comment if issues greater than inline and table threshold" do
+          aggregation_return("/assets/aggregation_single.json")
+          issues = android_lint_issues(16)
+          expect(issues["issues"].size).to be(16)
+          details_return_issue(issues)
+          mock_file_in_changeset(true)
+          mock_basename_in_changeset(true)
+          @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 10, table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          warnings = @dangerfile.status_report[:warnings]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(0)
+          expect(warnings.length).to be(1)
+          expect(warnings[0]).to include("Java Warnings")
+          expect(warnings[0]).to include("16 issues")
+        end
       end
     end
   end

@@ -92,6 +92,7 @@ module Danger
 
       collected_details = collect_details(options)
       force_table = should_force_table(options, collected_details)
+      force_warning = should_force_warning(options, collected_details)
 
       collected_details.each do |details|
         name = details[:name]
@@ -99,8 +100,10 @@ module Danger
 
         if inline?(options) && check_baseline(options) && !force_table
           inline_report(name, detail_item, baseline(options))
-        else
+        elsif !force_warning
           tool_table(name, detail_item)
+        else
+          warn("**#{name}** has #{detail_item['issues'].size} issues.")
         end
       end
     end
@@ -110,6 +113,19 @@ module Danger
     def should_force_table(options, collected_details)
       result = false
       threshold = options[:inline_threshold] if options
+      if threshold
+        sum = 0
+        collected_details.each do |details|
+          sum += details[:details]["issues"].size
+        end
+        result = true if sum >= threshold
+      end
+      result
+    end
+
+    def should_force_warning(options, collected_details)
+      result = false
+      threshold = options[:table_threshold] if options
       if threshold
         sum = 0
         collected_details.each do |details|

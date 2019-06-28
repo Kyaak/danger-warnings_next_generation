@@ -188,13 +188,31 @@ warnings_next_generation.overview_report(
 
 ## Comments threshold
 
-Switch from inline comments to table comment if all issues >= threshold.
+You can switch from inline comments to table comment if all issues >= threshold or to warnings if >= table threshold
 
 <blockquote>Switch to table comment if combined issues size >= 15
 <pre>
 warnings_next_generation.report(
+    inline: true
     inline_threshold: 15
 )
 </pre>
 </blockquote>   
 
+<blockquote>Switch to table comment if combined issues size >= 200
+<pre>
+warnings_next_generation.report(
+    table_threshold: 200
+)
+</pre>
+</blockquote>   
+
+<blockquote>Switch from inline comment to table, and automatically to warning. 
+<pre>
+warnings_next_generation.report(
+    inline: true
+    inline_threshold: 20
+    table_threshold: 200
+)
+</pre>
+</blockquote>   
