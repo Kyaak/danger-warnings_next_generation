@@ -8,7 +8,7 @@ require "warnings_next_generation/gem_version.rb"
 Gem::Specification.new do |spec|
   spec.name = "danger-warnings_next_generation"
   spec.version = WarningsNextGeneration::VERSION
-  spec.authors = ["Martin Schwamberger"]
+  spec.authors = ["Kyaak"]
   spec.email = ["kyaak.dev@gmail.com"]
   spec.description = "Danger plugin to for Jenkins-Warnings-Next-Generation plugin."
   spec.summary = "Read Jenkins warnings-ng reports and comment pull request with found issues."
