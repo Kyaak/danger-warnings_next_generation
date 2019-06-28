@@ -393,6 +393,38 @@ module Danger
           expect(messages.length).to be(14)
         end
 
+        it "creates inline comments if issues not in changedfiles and lower than threshold" do
+          aggregation_return("/assets/aggregation_two.json")
+          java_issues = android_lint_issues(8)
+          pmd_issues = android_lint_issues(8, "OtherFile.java")
+          details_return_issue(java_issues, "java")
+          details_return_issue(pmd_issues, "pmd")
+          target_files_return(["src/main/AndroidManifest.xml"])
+          @my_plugin.tools_report(inline: true, baseline: "project", inline_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(8)
+        end
+
+        it "creates table comments if issues not in changedfiles and lower than table threshold" do
+          aggregation_return("/assets/aggregation_two.json")
+          java_issues = android_lint_issues(8)
+          pmd_issues_1 = android_lint_issues(8, "OtherFile.java")
+          pmd_issues_2 = android_lint_issues(8, "OtherFileB.java")
+          pmd_issues = { "issues": pmd_issues_1["issues"] += pmd_issues_2["issues"] }
+          details_return_issue(java_issues, "java")
+          details_return_issue(pmd_issues, "pmd")
+          target_files_return(["src/main/AndroidManifest.xml", "src/main/OtherFile.java"])
+          @my_plugin.tools_report(inline: true, baseline: "project", inline_threshold: 15, table_threshold: 30)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(2)
+          expect(messages.length).to be(0)
+        end
+
         it "creates table comment if issues equal than threshold" do
           aggregation_return("/assets/aggregation_single.json")
           issues = android_lint_issues(15)
@@ -427,7 +459,14 @@ module Danger
           aggregation_return("/assets/aggregation.json")
           issues = android_lint_issues(9)
           expect(issues["issues"].size).to be(9)
-          details_return_issue(issues)
+          details_return_issue(issues, "java")
+          details_return_issue(issues, "checkstyle")
+          details_return_issue(issues, "pmd")
+          details_return_issue(issues, "maven")
+          details_return_issue(issues, "javadoc")
+          details_return_issue(issues, "spotbugs")
+          details_return_issue(issues, "cpd")
+          details_return_issue(issues, "open-tasks")
           mock_file_in_changeset(true)
           mock_basename_in_changeset(true)
           @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 15)
@@ -442,7 +481,14 @@ module Danger
           aggregation_return("/assets/aggregation.json")
           issues = android_lint_issues(10)
           expect(issues["issues"].size).to be(10)
-          details_return_issue(issues)
+          details_return_issue(issues, "java")
+          details_return_issue(issues, "checkstyle")
+          details_return_issue(issues, "pmd")
+          details_return_issue(issues, "maven")
+          details_return_issue(issues, "javadoc")
+          details_return_issue(issues, "spotbugs")
+          details_return_issue(issues, "cpd")
+          details_return_issue(issues, "open-tasks")
           mock_file_in_changeset(true)
           mock_basename_in_changeset(true)
           @my_plugin.tools_report(inline: true, baseline: "mylibrary/src/main", inline_threshold: 100)
@@ -497,8 +543,42 @@ module Danger
           expect(markdowns.length).to be(0)
           expect(messages.length).to be(0)
           expect(warnings.length).to be(1)
-          expect(warnings[0]).to include("Java Warnings")
-          expect(warnings[0]).to include("16 issues")
+          expect(warnings[0]).to include("16 **Java Warnings** issues")
+        end
+
+        it "creates table comment if issues greater than table_threshold but not in changelog" do
+          aggregation_return("/assets/aggregation_two.json")
+          java_issues = android_lint_issues(8)
+          pmd_issues = android_lint_issues(8, "OtherFile.java")
+          details_return_issue(java_issues, "java")
+          details_return_issue(pmd_issues, "pmd")
+          target_files_return(["src/main/AndroidManifest.xml"])
+          @my_plugin.tools_report(table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          expect(markdowns.length).to be(1)
+          expect(messages.length).to be(0)
+        end
+
+        it "creates warn comments if issues in changedfiles and higher than table threshold" do
+          aggregation_return("/assets/aggregation_two.json")
+          java_issues = android_lint_issues(8)
+          pmd_issues_1 = android_lint_issues(8, "OtherFile.java")
+          pmd_issues_2 = android_lint_issues(8, "OtherFileB.java")
+          pmd_issues = { "issues": pmd_issues_1["issues"] += pmd_issues_2["issues"] }
+          details_return_issue(java_issues, "java")
+          details_return_issue(pmd_issues, "pmd")
+          target_files_return(["src/main/AndroidManifest.xml", "src/main/OtherFile.java"])
+          @my_plugin.tools_report(table_threshold: 15)
+
+          markdowns = @dangerfile.status_report[:markdowns]
+          messages = @dangerfile.status_report[:messages]
+          warnings = @dangerfile.status_report[:warnings]
+          expect(markdowns.length).to be(0)
+          expect(messages.length).to be(0)
+          expect(warnings.length).to be(2)
+          expect(warnings[1]).to include("8 **Pmd Warnings** issues")
         end
 
         it "creates warning comment if issues greater than inline and table threshold" do
@@ -516,8 +596,7 @@ module Danger
           expect(markdowns.length).to be(0)
           expect(messages.length).to be(0)
           expect(warnings.length).to be(1)
-          expect(warnings[0]).to include("Java Warnings")
-          expect(warnings[0]).to include("16 issues")
+          expect(warnings[0]).to include("16 **Java Warnings** issues")
         end
       end
     end
@@ -542,11 +621,11 @@ def details_return(file)
   @my_plugin.stubs(:details_result).returns(json)
 end
 
-def details_return_issue(issue)
-  @my_plugin.stubs(:details_result).returns(issue)
+def details_return_issue(issue, toold_id = "java")
+  @my_plugin.stubs(:details_result).with("http://localhost:8080/view/White%20Mountains/job/New%20-%20Pipeline%20-%20Simple%20Model/26/#{toold_id}").returns(issue)
 end
 
-def android_lint_issues(count = 1)
+def android_lint_issues(count = 1, filename = "AndroidManifest.xml")
   json = {
     "issues": [],
   }
@@ -554,12 +633,12 @@ def android_lint_issues(count = 1)
   items = 0
   while items < count
     json[:issues] << {
-      "baseName": "AndroidManifest.xml",
+      "baseName": filename,
       "category": "Internationalization:Bidirectional Text",
       "columnEnd": 0,
       "columnStart": 0,
       "description": "",
-      "fileName": "/var/lib/jekins/workspace/Jenkins/Examples/android/MR6--danger/repository/mylibrary/src/main/AndroidManifest.xml",
+      "fileName": "project/src/main/#{filename}",
       "fingerprint": "4F7305CA47CE9CFC2A8E9BE4287E79F8",
       "lineEnd": 0,
       "lineStart": 0,

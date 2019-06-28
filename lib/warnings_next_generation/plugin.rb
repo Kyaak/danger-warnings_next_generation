@@ -91,7 +91,7 @@ module Danger
       check_auth(options)
 
       collected_details = collect_details(options)
-      force_table = should_force_table(options, collected_details)
+      force_table = should_force_table(options, collected_details, baseline(options))
       force_warning = should_force_warning(options, collected_details)
 
       collected_details.each do |details|
@@ -100,23 +100,26 @@ module Danger
 
         if inline?(options) && check_baseline(options) && !force_table
           inline_report(name, detail_item, baseline(options))
-        elsif !force_warning
-          tool_table(name, detail_item)
         else
-          warn("**#{name}** has #{detail_item['issues'].size} issues.")
+          tool_table(name, detail_item, force_warning)
         end
       end
     end
 
     private
 
-    def should_force_table(options, collected_details)
+    def should_force_table(options, collected_details, baseline)
       result = false
       threshold = options[:inline_threshold] if options
       if threshold
         sum = 0
         collected_details.each do |details|
-          sum += details[:details]["issues"].size
+          issues = details[:details]["issues"]
+          issues ||= details[:details][:issues]
+          issues.each do |issue|
+            file = issue["fileName"].gsub(baseline, "")
+            sum += 1 if file_in_changeset?(file)
+          end
         end
         result = true if sum >= threshold
       end
@@ -129,7 +132,12 @@ module Danger
       if threshold
         sum = 0
         collected_details.each do |details|
-          sum += details[:details]["issues"].size
+          issues = details[:details]["issues"]
+          issues ||= details[:details][:issues]
+          issues.each do |issue|
+            file = File.basename(issue["fileName"])
+            sum += 1 if basename_in_changeset?(file)
+          end
         end
         result = true if sum >= threshold
       end
@@ -203,8 +211,9 @@ module Danger
       !options.nil? && !options[:include].nil?
     end
 
-    def tool_table(name, details)
+    def tool_table(name, details, force_warnings)
       issues = details["issues"]
+      issues ||= details[:issues]
 
       table = WarningsNextGeneration::MarkdownTable.new
       table.detail_header(TABLE_HEADER_SEVERITY, TABLE_HEADER_FILE, TABLE_HEADER_DESCRIPTION)
@@ -219,10 +228,14 @@ module Danger
         table.line(severity, "#{file}:#{line}", "#{category_type(issue)} #{message}")
       end
 
-      unless table.size.zero?
-        content = +"### #{name}\n\n"
-        content << table.to_markdown
-        markdown(content)
+      if force_warnings
+        warn("This changeset has #{table.size} **#{name}** issues.")
+      else
+        unless table.size.zero?
+          content = +"### #{name}\n\n"
+          content << table.to_markdown
+          markdown(content)
+        end
       end
     end
 
